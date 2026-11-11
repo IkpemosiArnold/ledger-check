@@ -1,0 +1,9 @@
+{
+  "name": "ledger-check",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Suggested journal entries checked against the message and receipt they came from.",
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

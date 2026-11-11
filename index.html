@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ledger Check</title>
+<meta name="description" content="Journals an AI suggested from chat messages and receipts, checked in plain code before a person reviews them.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfcfd">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c111b">
+<link rel="icon" href="data:,">
+<link rel="preload" href="fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cross" viewBox="0 0 16 16"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+  <symbol id="i-none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.2 2.2"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<main class="shell">
+  <div class="sheet-col">
+    <header class="top">
+      <p class="mark">Ledger Check</p>
+      <h1>Every amount points back at its receipt.</h1>
+      <p class="sub">Six chat messages from a made-up studio, and the journals an AI suggested. Plain code checks each one before a person reviews it.</p>
+    </header>
+
+    <section class="reading" aria-labelledby="summary">
+      <p class="summary" id="summary" role="status"><span class="sum-main">Checking</span></p>
+      <p class="chain" id="chain"></p>
+      <div id="groups" class="groups"></div>
+    </section>
+  </div>
+
+  <aside class="evidence-col" id="side" aria-live="polite"></aside>
+
+  <section class="tool" id="agent-tool" aria-labelledby="agent-h">
+    <h2 id="agent-h">Change the suggestions</h2>
+    <p class="tool-sub">Edit any message, document or journal line, then check again. Fix the lunch to 1,420.00 and watch it pass.</p>
+    <label class="sr" for="events-in">Events as JSON</label>
+    <textarea id="events-in" rows="8" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+    <div class="actions">
+      <button type="button" id="events-check" class="btn primary">Check again</button>
+      <button type="button" id="events-reset" class="btn text">Reset sample</button>
+    </div>
+    <p id="events-error" class="error" role="alert" hidden></p>
+  </section>
+
+  <footer class="foot" id="own-tool">
+    <p>Built by Arnold Ikpemosi Adeyemi. Made-up data only, not accounting advice.</p>
+    <p><a href="https://ikpemosi.work">ikpemosi.work</a></p>
+    <p><a href="https://github.com/IkpemosiArnold/ledger-check">Source on GitHub</a></p>
+  </footer>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
