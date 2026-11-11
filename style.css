@@ -1,9 +1,11 @@
+@font-face { font-family: "Manrope"; src: url("fonts/manrope.woff2") format("woff2"); font-weight: 200 800; font-style: normal; font-display: swap; }
 @font-face { font-family: "Inter"; src: url("fonts/inter.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Newsreader"; src: url("fonts/newsreader.woff2") format("woff2"); font-weight: 200 800; font-style: normal; font-display: swap; }
 
 /* DIRECTION.md tokens. Inter, a blue accent, navy ink and slate greys. */
 :root {
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --head: "Manrope", "Inter", system-ui, sans-serif;
   --serif: "Newsreader", Georgia, "Times New Roman", serif;
   --mono: ui-monospace, Menlo, Consolas, monospace;
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
@@ -16,7 +18,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #0c111b; --surface: #131a27; --ink: #e9edf5; --muted: #a3acbd; --line: #232c3c;
-    --accent: #93a6ff; --on-accent: #0c111b;
+    --accent: #7c97ff; --on-accent: #fff; --btn: #3d5cf5;
     --pass: #5fd08a; --fail: #ff8275; --none: #e6b450;
     --page: #131a27;
   }
@@ -225,3 +227,15 @@ a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness:
   .page-wait::after { animation: none; }
 }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Ledger Check additions */
+h1, .sum-main { font-family: var(--head); font-weight: 650; }
+.btn.primary { background: var(--btn, var(--accent)); }
+.why-btn { margin-top: var(--s2); min-height: 44px; padding: 0 var(--s1); }
+.why-text { font-size: 14px; color: var(--muted); margin: 0; max-width: 36em; }
+.doc-lines { margin: 0; font-family: var(--serif); font-size: 18px; line-height: 1.5; }
+.rline { display: flex; justify-content: space-between; gap: var(--s3); }
+.rline .r { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
+.title-nb { white-space: nowrap; }
+.sum-side.muted { color: var(--muted); font-weight: 400; }
+.sum-main.st-fail { color: var(--fail); }

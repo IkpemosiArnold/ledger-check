@@ -20,7 +20,7 @@ The four held back in the sample:
 - A software invoice paid in US$20.00, booked in HKD at 156.00 against 165.00, so it neither balances nor has a rate behind it.
 - A contractor payment booked at 5,000.00 from a message with no amount and no invoice.
 
-Edit the JSON at the bottom of the page to try your own. Fix the lunch to 1,420.00 and it passes.
+Edit the JSON at the bottom of the page to try your own, or press "Fix the lunch for me" and watch it pass.
 
 ## Where a model would go
 
@@ -53,9 +53,9 @@ Then open http://localhost:8000. The page makes no network calls beyond its own 
 
 It follows the shared direction for these demos: rows split by hairlines instead of cards, one result as the largest thing on the page, and an underline that draws under the amounts a journal line uses.
 
-The look borrows from bookkeeping tools: Inter for the tool's words, Newsreader for text quoted from a receipt or bank advice, a blue accent (#2447ed), navy ink (#111a29) and slate greys (#566175). The detail view has the shape of the work itself: a chat message with its document attached, then a journal of account, debit and credit.
+The look borrows from bookkeeping tools: Manrope for the headline and the result, Inter for the tool's words, Newsreader for text quoted from a receipt or bank advice, a blue accent (#2447ed), navy ink (#111a29) and slate greys (#566175). The detail view has the shape of the work itself: a chat message with its document attached, then a journal of account, debit and credit.
 
-Fonts: Inter and Newsreader (SIL Open Font License), latin subsets in `fonts/`, served from this folder.
+Fonts: Manrope, Inter and Newsreader (SIL Open Font License), latin subsets in `fonts/`, served from this folder.
 
 ## Provenance
 

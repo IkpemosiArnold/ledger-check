@@ -34,6 +34,46 @@ function marked(tag, cls, text, marks) {
   return p;
 }
 
+/** Part of a text with the marks that fall inside it. */
+function markedRange(text, start, end, marks) {
+  const frag = document.createDocumentFragment();
+  let at = start;
+  for (const m of [...marks].sort((a, b) => a.index - b.index)) {
+    const ms = m.index;
+    const me = m.index + m.text.length;
+    if (ms < start || me > end || ms < at) continue;
+    frag.append(text.slice(at, ms), el("span", `u ${m.kind}`, text.slice(ms, me)));
+    at = me;
+  }
+  frag.append(text.slice(at, end));
+  return frag;
+}
+
+/** A receipt laid out like one: label left, amount right. */
+function receiptLines(text, marks) {
+  const box = el("div", "doc-lines");
+  let off = 0;
+  for (const line of text.split("\n")) {
+    const row = el("div", "rline");
+    const gap = line.search(/\s{2,}/);
+    if (gap > 0) {
+      const amtStart = off + gap + line.slice(gap).search(/\S/);
+      const l = el("span", "l");
+      l.append(markedRange(text, off, off + gap, marks));
+      const rr = el("span", "r");
+      rr.append(markedRange(text, amtStart, off + line.length, marks));
+      row.append(l, rr);
+    } else {
+      const l = el("span", "l");
+      l.append(markedRange(text, off, off + line.length, marks));
+      row.append(l);
+    }
+    box.append(row);
+    off += line.length + 1;
+  }
+  return box;
+}
+
 function evidenceMarks(r, where) {
   const used = new Set(r.lines.filter((l) => l.traced && l.traced.where === where).map((l) => l.traced.index));
   const marks = [];
@@ -55,7 +95,7 @@ function detail(ev, r) {
   if (ev.document) {
     const d = el("div", "doc");
     d.append(el("p", "doc-name", `${ev.document.kind}: ${ev.document.name}`));
-    d.append(marked("p", "doc-text", String(ev.document.text || ""), evidenceMarks(r, "document")));
+    d.append(receiptLines(String(ev.document.text || ""), evidenceMarks(r, "document")));
     bubble.append(d);
   } else {
     const d = el("div", "doc");
@@ -78,11 +118,14 @@ function detail(ev, r) {
       const td = el("td", "num");
       if (l[side]) {
         td.append(fmt(l[side]));
-        const mk = el("span", `mk ${l.traced ? "st-pass" : "st-fail"}`);
-        mk.append(icon(l.traced ? "check" : "cross"));
-        mk.setAttribute("title", l.traced ? `In the ${l.traced.where}: ${l.traced.line}` : "Not in the evidence");
+        // In a source, but the sources disagree: not settled, so neither a tick nor a cross.
+        const state = !l.traced ? "fail" : r.conflict ? "none" : "pass";
+        const mk = el("span", `mk st-${state}`);
+        mk.append(icon(state === "pass" ? "check" : state === "none" ? "none" : "cross"));
+        const why = state === "pass" ? `In the ${l.traced.where}: ${l.traced.line}` : state === "none" ? `In the ${l.traced.where}, but the message and the ${(ev.document?.kind || "document").toLowerCase()} disagree` : "Not in the evidence";
+        mk.setAttribute("title", why);
         td.append(mk);
-        td.setAttribute("aria-label", `${fmt(l[side])}, ${l.traced ? `found in the ${l.traced.where}` : "not in the evidence"}`);
+        td.setAttribute("aria-label", `${fmt(l[side])}, ${why}`);
       } else td.append("");
       tr.append(td);
     }
@@ -178,40 +221,50 @@ function shortReason(ev, r) {
   return r.reasons[0] || "Held back.";
 }
 
-function render(events, { fresh = false } = {}) {
+function render(events, { fresh = false, focusId = null } = {}) {
   closeOpen();
   const results = events.map((e) => checkEvent(e));
   const { total, ready, held } = summarize(results);
   const sum = $("summary");
-  sum.replaceChildren(el("span", "sum-main", `${ready} of ${total} ready for review`));
   if (held) {
-    const side = el("span", "sum-side fail");
-    side.append(icon("cross"), `${held} held back`);
-    sum.append(side);
+    sum.replaceChildren(el("span", "sum-main st-fail", `${held} of ${total} held back`));
+    sum.append(el("span", "sum-side muted", `${ready} ready for review`));
+  } else {
+    sum.replaceChildren(el("span", "sum-main", `${ready} of ${total} ready for review`));
   }
-  $("chain").textContent = "Ready means debits equal credits, every amount is in the message or the document in the same currency, and the two agree.";
+  $("chain").textContent = "Ready means debits equal credits, every amount is in the message or the document in the same currency, and the two agree. Anything else is held back with the reason.";
 
   const rows = el("div", "rows");
-  rows.append(...events.map((ev, i) => {
+  const order = events.map((ev, i) => i).sort((a, b) => (results[a].status === results[b].status ? a - b : results[a].status === "held" ? -1 : 1));
+  rows.append(...order.map((i) => {
+    const ev = events[i];
     const r = results[i];
     const ok = r.status === "ready";
     const st = el("span", `status ${ok ? "st-pass" : "st-fail"}`);
     st.append(icon(ok ? "check" : "cross"), ok ? "Ready" : "Held");
     const val = el("span", "val");
     const first = r.lines[0];
-    val.append(el("b", null, String(ev.title || "Event")), `${ev.from}, ${ev.channel}`);
+    val.append(el("b", null, String(ev.title || "Event").replace(/(\w)-(\d)/g, "$1\u2011$2")), `${ev.from}, ${ev.channel}`);
     if (ok && first) val.append(el("span", "meta", `${first.account}, ${ev.journal?.currency || ""} ${fmt(first.cents)}`));
     if (!ok) val.append(el("span", "meta st-fail", shortReason(ev, r)));
     return rowItem(`e-${i}`, [st, val], () => detail(ev, r));
   }));
   if (fresh) rows.classList.add("fresh");
   const g = el("section", "group");
-  g.append(el("h2", "group-h", "This week's messages"), rows);
+  g.append(el("h2", "group-h", held ? "This week's messages, held back first" : "This week's messages"), rows);
   $("groups").replaceChildren(g);
 
-  // Open the first held-back event, so the first thing seen is a catch with its evidence.
-  const lead = results.findIndex((r) => r.status === "held");
-  const li = rows.children[lead >= 0 ? lead : 0];
+  // Open the first row (a held one when there is one), so the first thing seen is a catch with its evidence.
+  if (focusId) {
+    const k = order.findIndex((i) => events[i].id === focusId);
+    const li = rows.children[k];
+    if (li) {
+      show(li._entry, false);
+      li.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+    return;
+  }
+  const li = rows.children[0];
   if (li) show(li._entry, false);
 }
 
@@ -229,6 +282,24 @@ $("events-check").addEventListener("click", () => {
     err.textContent = "That isn't a JSON list of events with a message and a journal. Reset the sample to see the shape.";
     err.hidden = false;
   }
+});
+$("events-fix").addEventListener("click", () => {
+  let evs;
+  try { evs = JSON.parse($("events-in").value); } catch { evs = JSON.parse(sampleJson()); }
+  const lunch = evs.find((e) => e && e.id === "lunch");
+  if (!lunch) return;
+  for (const l of lunch.journal.lines) {
+    if (l.debit) l.debit = "1,420.00";
+    if (l.credit) l.credit = "1,420.00";
+  }
+  $("events-in").value = JSON.stringify(evs, null, 2);
+  $("events-error").hidden = true;
+  render(evs, { fresh: true, focusId: "lunch" });
+});
+$("why-btn").addEventListener("click", () => {
+  const t = $("chain");
+  t.hidden = !t.hidden;
+  $("why-btn").setAttribute("aria-expanded", String(!t.hidden));
 });
 $("events-reset").addEventListener("click", () => {
   $("events-in").value = sampleJson();

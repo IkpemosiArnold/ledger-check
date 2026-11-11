@@ -24,12 +24,13 @@
     <header class="top">
       <p class="mark">Ledger Check</p>
       <h1>Every amount points back at its receipt.</h1>
-      <p class="sub">Six chat messages from a made-up studio, and the journals an AI suggested. Plain code checks each one before a person reviews it.</p>
+      <p class="sub">Six chat messages from a made-up studio, and the journals an AI suggested for them.</p>
     </header>
 
     <section class="reading" aria-labelledby="summary">
       <p class="summary" id="summary" role="status"><span class="sum-main">Checking</span></p>
-      <p class="chain" id="chain"></p>
+      <button type="button" class="btn text why-btn" id="why-btn" aria-expanded="false" aria-controls="chain">What ready means</button>
+      <p class="why-text" id="chain" hidden></p>
       <div id="groups" class="groups"></div>
     </section>
   </div>
@@ -38,11 +39,12 @@
 
   <section class="tool" id="agent-tool" aria-labelledby="agent-h">
     <h2 id="agent-h">Change the suggestions</h2>
-    <p class="tool-sub">Edit any message, document or journal line, then check again. Fix the lunch to 1,420.00 and watch it pass.</p>
+    <p class="tool-sub">Edit any message, document or journal line, then check again. Or let the page fix the lunch to 1,420.00 and watch it pass.</p>
     <label class="sr" for="events-in">Events as JSON</label>
     <textarea id="events-in" rows="8" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
     <div class="actions">
       <button type="button" id="events-check" class="btn primary">Check again</button>
+      <button type="button" id="events-fix" class="btn text">Fix the lunch for me</button>
       <button type="button" id="events-reset" class="btn text">Reset sample</button>
     </div>
     <p id="events-error" class="error" role="alert" hidden></p>
